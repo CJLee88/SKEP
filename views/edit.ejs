@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= text.edit %></title>
+  <!-- Quill CSS CDN -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <h1><%= text.edit %></h1>
+  <form id="edit-form" method="POST" action="/admin/edit/<%= article.id %>?lang=<%= lang %>" enctype="multipart/form-data">
+    <label>제목: <input type="text" name="title" value="<%= article.title %>" required></label><br>
+    <label><%= text.category %>: 
+      <select name="category">
+        <option value="국제교육" <%= article.category === '국제교육' ? 'selected' : '' %>>국제교육</option>
+        <option value="한국유학" <%= article.category === '한국유학' ? 'selected' : '' %>>한국유학</option>
+        <option value="다문화" <%= article.category === '다문화' ? 'selected' : '' %>>다문화</option>
+        <option value="인터뷰" <%= article.category === '인터뷰' ? 'selected' : '' %>>인터뷰</option>
+      </select>
+    </label><br>
+    <!-- Quill 에디터 영역, 기존 내용 표시 -->
+    <div id="editor-container" style="height: 200px; background: #fff;"><%= article.content %></div>
+    <textarea id="content" name="content" style="display:none;" required></textarea><br>
+    <% if (article.image) { %>
+      <img src="<%= article.image %>" width="200"><br>
+    <% } %>
+    <input type="hidden" name="currentImage" value="<%= article.image %>">
+    <label>이미지 수정: <input type="file" name="image"></label><br>
+    <button type="submit"><%= text.edit %></button>
+  </form>
+  <hr>
+  <a href="/admin/dashboard?lang=<%= lang %>">← <%= text.article_list %></a>
+  
+  <!-- Quill JS CDN -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script>
+    var quill = new Quill('#editor-container', { theme: 'snow' });
+    var form = document.getElementById('edit-form');
+    form.onsubmit = function() {
+      document.getElementById('content').value = quill.root.innerHTML;
+    };
+  </script>
+</body>
+</html>
