@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= text.write_article %></title>
+  <!-- Quill CSS CDN -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <h1><%= text.write_article %></h1>
+  <form id="write-form" method="POST" action="/admin/write?lang=<%= lang %>" enctype="multipart/form-data">
+    <label>제목: <input type="text" name="title" required></label><br>
+    <label><%= text.category %>: 
+      <select name="category">
+        <option value="국제교육">국제교육</option>
+        <option value="한국유학">한국유학</option>
+        <option value="다문화">다문화</option>
+        <option value="인터뷰">인터뷰</option>
+      </select>
+    </label><br>
+    <!-- Quill 에디터 영역 (내용 입력) -->
+    <div id="editor-container" style="height: 200px; background: #fff;"></div>
+    <textarea id="content" name="content" style="display:none;" required></textarea><br>
+    <label>이미지 업로드: <input type="file" name="image"></label><br>
+    <button type="submit"><%= text.write %></button>
+  </form>
+  <hr>
+  <h2><%= text.article_list %></h2>
+  <ul>
+    <% articles.forEach(article => { %>
+      <li>
+        <strong><%= article.title %></strong> - <%= article.date %> [<%= article.category %>]
+        [<a href="/news/<%= article.id %>?lang=<%= lang %>"><%= text.view %></a>]
+        [<a href="/admin/edit/<%= article.id %>?lang=<%= lang %>"><%= text.edit %></a>]
+        <form method="POST" action="/admin/delete/<%= article.id %>?lang=<%= lang %>" style="display:inline">
+          <button type="submit"><%= text.delete %></button>
+        </form>
+      </li>
+    <% }) %>
+  </ul>
+  <hr>
+  <a href="/admin/logout?lang=<%= lang %>"><%= text.logout %></a>
+  
+  <!-- Quill JS CDN -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script>
+    // Quill 에디터 초기화 및 submit 전 내용 동기화
+    var quill = new Quill('#editor-container', { theme: 'snow' });
+    var form = document.getElementById('write-form');
+    form.onsubmit = function() {
+      document.getElementById('content').value = quill.root.innerHTML;
+    };
+  </script>
+</body>
+</html>
