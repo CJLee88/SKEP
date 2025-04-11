@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= text.login %></title>
+</head>
+<body>
+  <h1><%= text.login %></h1>
+  <form method="POST" action="/admin/login?lang=<%= lang %>">
+    <label>ID: <input type="text" name="username"></label><br>
+    <label>Password: <input type="password" name="password"></label><br>
+    <button type="submit"><%= text.login %></button>
+  </form>
+</body>
+</html>
