@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= article.title %></title>
+</head>
+<body>
+  <h1><%= article.title %></h1>
+  <p>
+    <em><%= article.date %></em> | 
+    <strong><%= text.category %>:</strong> <%= article.category %> | 
+    조회수: <%= article.views %>
+  </p>
+  <% if (article.image) { %>
+    <img src="<%= article.image %>" width="400"><br>
+  <% } %>
+  <div><%= article.content %></div>
+  <hr>
+  <h3><%= text.write_comment %></h3>
+  <form method="POST" action="/news/<%= article.id %>/comment?lang=<%= lang %>">
+    <input type="text" name="name" placeholder="<%= text.name %>" required><br>
+    <textarea name="comment" rows="4" cols="50" placeholder="<%= text.comment %>" required></textarea><br>
+    <button type="submit"><%= text.write_comment %></button>
+  </form>
+  <ul>
+    <% comments.forEach(c => { %>
+      <li><strong><%= c.name %></strong>: <%= c.comment %> (<%= c.date %>)</li>
+    <% }) %>
+  </ul>
+  <hr>
+  <a href="/?lang=<%= lang %>">← <%= text.article_list %></a>
+</body>
+</html>
