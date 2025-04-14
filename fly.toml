@@ -1,19 +1,15 @@
-# fly.toml app configuration file generated for skep on 2025-04-14T14:54:55Z
+# fly.toml app configuration file generated for skep on 2025-04-14T15:20:49Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = 'skep'
-primary_region = 'sjc'
+primary_region = 'sin'
 
 [build]
 
-[[mounts]]
-  source = 'data'
-  destination = '/data'
-
 [http_service]
-  internal_port = 3000
+  internal_port = 8080
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
