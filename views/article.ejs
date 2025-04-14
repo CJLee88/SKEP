@@ -1,33 +1,269 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title><%= article.title %></title>
+  <title><%= article.title %> | K-Study Times</title>
+  
+  <!-- SEO 메타 태그 -->
+  <meta name="description" content="<%= article.content.replace(/<[^>]+>/g, '').substring(0,200) %>">
+  <meta name="keywords" content="<%= article.keywords %>">
+  
+  <!-- Open Graph 태그 -->
+  <meta property="og:title" content="<%= article.title %> | K-Study Times">
+  <meta property="og:description" content="<%= article.content.replace(/<[^>]+>/g, '').substring(0,200) %>">
+  <% if (article.image) { %>
+    <meta property="og:image" content="<%= article.image %>">
+  <% } %>
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="<%= req ? 'https://' + req.headers.host + req.originalUrl : '' %>">
+  
+  <link rel="stylesheet" href="/css/header.css">
+  <style>
+    /* 컨텐츠를 감싸는 전체 박스 */
+    .article-container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    /* 제목 스타일 */
+    .article-container h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    /* 메타 정보 스타일 */
+    .article-meta {
+      font-size: 0.9em;
+      color: #777;
+      margin-bottom: 20px;
+      padding: 8px;
+      background: #f7f7f7;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+    }
+    .article-meta em {
+      font-style: normal;
+      font-weight: bold;
+    }
+
+    /* 대표 이미지 중앙 정렬 */
+    .article-image {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .article-image img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* 본문 내용 스타일 */
+    .article-content {
+      font-size: 1.1em;
+      line-height: 1.8;
+      color: #444;
+    }
+
+    /* 댓글 작성 폼 */
+    .comment-form {
+      margin-top: 30px;
+      padding: 10px;
+      background: #f7f7f7;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .comment-form input[type="text"],
+    .comment-form textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .comment-form button {
+      padding: 10px 20px;
+      background-color: #007BFF; /* 눈에 잘 띄는 진한 파란색 */
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      display: block;
+      margin-left: auto; /* 버튼만 오른쪽 정렬 */
+    }
+    .comment-form button:hover {
+      background-color: #0056b3;
+    }
+
+    /* 베스트 댓글 목록 스타일 */
+    .best-comment-list {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+    .best-comment-list li {
+      padding: 6px 0;
+      border-bottom: 1px dashed #ddd;
+    }
+    .best-comment-list li:last-child {
+      border-bottom: none;
+    }
+
+    /* 댓글 목록 스타일 */
+    .comment-list {
+      margin-top: 20px;
+      list-style: none;
+      padding: 0;
+    }
+    .comment-list li {
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
+
+    /* SNS 공유 버튼 영역 (기존 그대로) */
+    .sns-share {
+      margin-top: 20px;
+      padding: 10px;
+      border-top: 1px solid #ddd;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .sns-share a {
+      text-decoration: none;
+      padding: 8px 12px;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 0.9em;
+      flex: 1 1 auto;
+      max-width: 200px;
+      text-align: center;
+    }
+    .sns-share a.facebook { background-color: #3b5998; }
+    .sns-share a.insta { background-color: #e4405f; }
+    @media (max-width: 600px) {
+      .sns-share a {
+        flex-basis: 100%;
+        max-width: none;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1><%= article.title %></h1>
-  <p>
-    <em><%= article.date %></em> | 
-    <strong><%= text.category %>:</strong> <%= article.category %> | 
-    조회수: <%= article.views %>
-  </p>
-  <% if (article.image) { %>
-    <img src="<%= article.image %>" width="400"><br>
-  <% } %>
-  <div><%= article.content %></div>
-  <hr>
-  <h3><%= text.write_comment %></h3>
-  <form method="POST" action="/news/<%= article.id %>/comment?lang=<%= lang %>">
-    <input type="text" name="name" placeholder="<%= text.name %>" required><br>
-    <textarea name="comment" rows="4" cols="50" placeholder="<%= text.comment %>" required></textarea><br>
-    <button type="submit"><%= text.write_comment %></button>
-  </form>
-  <ul>
-    <% comments.forEach(c => { %>
-      <li><strong><%= c.name %></strong>: <%= c.comment %> (<%= c.date %>)</li>
-    <% }) %>
-  </ul>
-  <hr>
-  <a href="/?lang=<%= lang %>">← <%= text.article_list %></a>
+  <%- include('partials/header') %>
+  <div class="article-container">
+    <h1><%= article.title %></h1>
+    <div class="article-meta">
+      <span><em><%= article.date %></em></span> | 
+      <span><strong><%= text.category %>:</strong> <%= article.category %></span> | 
+      <span>조회수: <%= article.views %></span>
+    </div>
+    <% if (article.image) { %>
+      <div class="article-image">
+        <img src="<%= article.image %>" alt="대표 이미지">
+      </div>
+    <% } %>
+    <div class="article-content">
+      <%- article.content %>
+    </div>
+    <hr>
+    <h3><%= text.write_comment %></h3>
+    <% if (req && req.isAuthenticated && req.isAuthenticated()) { %>
+      <div class="comment-form">
+        <form method="POST" action="/news/<%= article.id %>/comment?lang=<%= lang %>">
+          <textarea name="comment" rows="4" placeholder="<%= text.comment %>" required></textarea>
+          <button type="submit"><%= text.write_comment %></button>
+        </form>
+      </div>
+    <% } else { %>
+      <p>댓글 작성을 위해 로그인이 필요합니다.</p>
+      <a href="/auth/google?lang=<%= lang %>">구글 로그인</a>
+    <% } %>
+
+    <!-- 베스트 댓글 섹션: 좋아요 3개 이상인 댓글 중 상위 2개 -->
+    <% 
+      let bestComments = comments.filter(c => c.like_count && c.like_count >= 3);
+      bestComments.sort((a, b) => b.like_count - a.like_count);
+      bestComments = bestComments.slice(0, 2);
+    %>
+    <% if (bestComments.length > 0) { %>
+      <h3>베스트 댓글</h3>
+      <ul class="best-comment-list">
+        <% bestComments.forEach(function(bc) { %>
+          <li>
+            <strong><%= bc.name %></strong>: <%= bc.comment %> (<%= bc.date %>) - 좋아요: <%= bc.like_count %>
+            <% if (req.isAuthenticated && req.isAuthenticated() && bc.user_email === (req.user.emails && req.user.emails[0].value)) { %>
+              <form action="/news/<%= article.id %>/comment/<%= bc.id %>/delete?lang=<%= lang %>" method="POST" style="display:inline;">
+                <button type="submit">삭제</button>
+              </form>
+              <a href="/news/<%= article.id %>/comment/<%= bc.id %>/edit?lang=<%= lang %>">수정</a>
+            <% } %>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+
+    <!-- 댓글 목록 섹션 -->
+    <ul class="comment-list">
+      <% comments.forEach(function(c) { %>
+        <li>
+          <strong><%= c.name %></strong>: <%= c.comment %> (<%= c.date %>)
+          - 좋아요: <span id="like-count-<%= c.id %>"><%= c.like_count || 0 %></span>
+          <button class="like-btn" data-comment-id="<%= c.id %>">좋아요</button>
+          <% if (req.isAuthenticated && req.isAuthenticated() && c.user_email === (req.user.emails && req.user.emails[0].value)) { %>
+            <form action="/news/<%= article.id %>/comment/<%= c.id %>/delete?lang=<%= lang %>" method="POST" style="display:inline;">
+              <button type="submit">삭제</button>
+            </form>
+            <a href="/news/<%= article.id %>/comment/<%= c.id %>/edit?lang=<%= lang %>">수정</a>
+          <% } %>
+        </li>
+      <% }); %>
+    </ul>
+    <hr>
+    <div class="sns-share">
+      <a id="fb-share" class="facebook" target="_blank" href="#">Facebook 공유</a>
+      <a id="insta-share" class="insta" target="_blank" href="#">Instagram 공유</a>
+    </div>
+    <hr>
+    <a href="/?lang=<%= lang %>">← <%= text.article_list %></a>
+  </div>
+
+  <script>
+    // 현재 페이지의 URL을 동적으로 구성하여 SNS 공유 링크에 사용
+    const currentUrl = encodeURIComponent(window.location.href);
+    document.getElementById('fb-share').href = "https://www.facebook.com/sharer/sharer.php?u=" + currentUrl;
+    document.getElementById('insta-share').href = "https://www.instagram.com/";
+
+    // 좋아요 버튼 기능: 클릭 시 좋아요 수를 증가시킵니다.
+    document.querySelectorAll('.like-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const commentId = this.dataset.commentId;
+        const articleId = "<%= article.id %>"; 
+        fetch(`/news/${articleId}/comment/${commentId}/like`, {
+          method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if(data.error){
+            alert(data.error);
+          } else {
+            document.getElementById('like-count-' + commentId).textContent = data.like_count;
+          }
+        })
+        .catch(err => {
+          console.error("좋아요 요청 오류:", err);
+        });
+      });
+    });
+  </script>
 </body>
 </html>

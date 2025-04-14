@@ -1,0 +1,214 @@
+<!-- views/detailed-stats.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>자세한 통계 보기</title>
+  <link rel="stylesheet" href="/css/header.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .stats-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .filter-form {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .filter-form input[type="date"] {
+      padding: 5px;
+      font-size: 1em;
+      margin: 0 5px;
+    }
+    .chart-container {
+      position: relative;
+      margin: 20px auto;
+      width: 100%;
+      max-width: 800px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <div class="stats-container">
+    <h1>자세한 통계 보기</h1>
+    
+    <!-- 기간 필터 폼 -->
+    <div class="filter-form">
+      <form action="/admin/detailed-stats" method="GET">
+        <label>시작 날짜:
+          <input type="date" name="start" value="<%= startDate %>">
+        </label>
+        <label>종료 날짜:
+          <input type="date" name="end" value="<%= endDate %>">
+        </label>
+        <input type="hidden" name="lang" value="<%= lang %>">
+        <button type="submit">조회</button>
+      </form>
+    </div>
+    
+    <!-- 방문자 통계 그래프 -->
+    <div class="chart-container">
+      <canvas id="visitorChart"></canvas>
+    </div>
+    
+    <!-- 기사 작성 통계 그래프 -->
+    <div class="chart-container">
+      <canvas id="articleChart"></canvas>
+    </div>
+    
+    <!-- 방문자 통계 상세 테이블 -->
+    <h2>날짜별 방문자 수</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>날짜</th>
+          <th>방문자 수</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% visitStats.forEach(function(stat) { %>
+          <tr>
+            <td><%= stat.visit_date %></td>
+            <td><%= stat.count %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    
+    <!-- 기사 작성 통계 상세 테이블 -->
+    <h2>날짜별 작성 기사 수</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>날짜</th>
+          <th>작성 기사 수</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% articleStats.forEach(function(stat) { %>
+          <tr>
+            <td><%= stat.article_date %></td>
+            <td><%= stat.count %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    
+    <hr>
+    <a href="/admin/dashboard?lang=<%= lang %>">← 관리자 대시보드</a>
+  </div>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // 방문자 통계 데이터 정렬 및 차트 구성
+    const visitStats = <%- JSON.stringify(visitStats) %>;
+    visitStats.sort((a, b) => new Date(a.visit_date) - new Date(b.visit_date));
+    const visitorLabels = visitStats.map(stat => stat.visit_date);
+    const visitorData = visitStats.map(stat => stat.count);
+
+    const ctxVisitor = document.getElementById('visitorChart').getContext('2d');
+    const visitorChart = new Chart(ctxVisitor, {
+      type: 'line',
+      data: {
+        labels: visitorLabels,
+        datasets: [{
+          label: '방문자 수',
+          data: visitorData,
+          fill: false,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: '기간별 방문자 수'
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: '날짜'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: '방문자 수'
+            },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // 기사 작성 통계 데이터 정렬 및 차트 구성
+    const articleStats = <%- JSON.stringify(articleStats) %>;
+    articleStats.sort((a, b) => new Date(a.article_date) - new Date(b.article_date));
+    const articleLabels = articleStats.map(stat => stat.article_date);
+    const articleData = articleStats.map(stat => stat.count);
+
+    const ctxArticle = document.getElementById('articleChart').getContext('2d');
+    const articleChart = new Chart(ctxArticle, {
+      type: 'line',
+      data: {
+        labels: articleLabels,
+        datasets: [{
+          label: '작성 기사 수',
+          data: articleData,
+          fill: false,
+          borderColor: 'rgba(153, 102, 255, 1)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: '기간별 기사 작성 수'
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: '날짜'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: '작성 기사 수'
+            },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
