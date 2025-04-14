@@ -1,32 +1,500 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title><%= text.latest_news %></title>
+  <link rel="stylesheet" href="/css/header.css">
+  <style>
+    /* ===== 전체 레이아웃 / 폰트 / 색상 ===== */
+    :root {
+      --primary-color: #007BFF;
+      --dark-text: #333;
+      --light-text: #666;
+      --bg-color: #f4f4f4;
+      --font-family: 'Noto Sans KR','Roboto', Arial, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+      background: var(--bg-color);
+      color: var(--dark-text);
+    }
+
+    /* ===== 히어로(배너) 영역 ===== */
+    .hero {
+      position: relative;
+      width: 100%;
+      min-height: 280px;
+      background: url("/images/hero.png") center/cover no-repeat;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px 20px;
+      box-shadow: inset 0 0 1000px rgba(0,0,0,0.3);
+    }
+    .hero h1 {
+      font-size: 2.2em;
+      margin: 0 0 10px 0;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .hero p {
+      font-size: 1.1em;
+      margin: 5px 0;
+      max-width: 700px;
+      line-height: 1.4;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .hero-text {
+  background: rgba(0, 0, 0, 0.682); /* 어두운 반투명 배경 */
+  padding: 20px;                /* 텍스트 주변 여백 */
+  border-radius: 6px;           /* 모서리 둥글게 처리 */
+  display: inline-block;        /* 텍스트에 맞춰 크기 조절 */
+}
+
+.hero-text h1,
+.hero-text p {
+  margin: 0;                    /* 기본 마진 제거 */
+  color: #fff;                  /* 흰색 텍스트 */
+}
+
+
+    /* ===== 메인 컨테이너 (패널) ===== */
+    .container {
+      max-width: 1100px;
+      margin: -40px auto 30px auto; /* 히어로 아래로 끌어와 오버랩 효과 */
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-radius: 8px;
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      /* 페이드인 */
+      animation: fadeIn 0.5s ease-in-out both;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== 카테고리 탭 ===== */
+    .category-tabs {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      margin: 10px 0 20px 0;
+      text-align: center;
+    }
+    .category-tabs a {
+      display: inline-block;
+      margin: 5px;
+      text-decoration: none;
+      padding: 6px 12px;
+      background-color: #eee;
+      color: #333;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    .category-tabs a:hover {
+      background-color: #ddd;
+    }
+    .category-tabs a.active {
+      background-color: var(--primary-color);
+      color: #fff;
+    }
+
+    /* ===== 인기글 섹션 변경 ===== */
+    .popular-articles {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 30px;
+    }
+    .popular-articles h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.2em;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
+    .popular-articles ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    /* 변경된 인기글 항목 스타일 : 한 줄에 모두 표시 */
+    .popular-item {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.95em;
+      padding: 4px 0;
+      border-bottom: 1px dashed #ddd;
+    }
+    .popular-item:last-child {
+      border-bottom: none;
+    }
+    .popular-item span {
+      padding: 0 5px;
+    }
+    .popular-title { flex: 2; }
+    .popular-stats { flex: 1; text-align: center; }
+    .popular-summary { flex: 3; overflow: hidden; text-overflow: ellipsis; }
+    .popular-date { flex: 1; text-align: right; }
+
+    /* ===== 뉴스 목록 (그리드 2단) ===== */
+    .news-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .news-item {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+      transition: box-shadow 0.3s, transform 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    .news-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transform: translateY(-2px);
+    }
+    .news-thumbnail {
+      width: 100%;
+      height: 160px;
+      background: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .news-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .news-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+    }
+    .news-header {
+      margin-bottom: 8px;
+    }
+    .news-title {
+      margin: 0;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: var(--dark-text);
+    }
+    .news-title a {
+      text-decoration: none;
+      color: inherit;
+    }
+    .news-title a:hover {
+      text-decoration: underline;
+    }
+    .news-meta {
+      font-size: 0.9em;
+      color: var(--light-text);
+      margin-top: 4px;
+    }
+    .news-summary {
+      margin-top: auto;
+      padding: 8px;
+      background-color: #f9f9f9;
+      border-top: 1px solid #eee;
+      font-size: 0.95em;
+      color: #444;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    /* ===== 페이지네비게이션 ===== */
+    .pagination {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .pagination a, .pagination span {
+      display: inline-block;
+      margin: 0 5px;
+      padding: 5px 10px;
+      text-decoration: none;
+      color: var(--primary-color);
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    .pagination a:hover {
+      background: #f0f0f0;
+    }
+    .pagination span.current {
+      background-color: var(--primary-color);
+      color: #fff;
+      border-color: var(--primary-color);
+    }
+
+    /* ===== 검색 & 구독 폼 섹션 ===== */
+    .form-section {
+      margin: 40px 0 20px 0;
+      text-align: center;
+    }
+    .form-section h3 {
+      margin-bottom: 10px;
+      font-size: 1.1em;
+      border-bottom: 1px solid #eee;
+      display: inline-block;
+      padding-bottom: 4px;
+      color: var(--dark-text);
+    }
+    .input-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
+      position: relative; /* 자동완성 목록 positioning */
+    }
+    .input-group input[type="text"],
+    .input-group input[type="email"] {
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .input-group button {
+      padding: 10px 16px;
+      font-size: 1em;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .input-group button:hover {
+      background-color: #0056b3;
+    }
+
+    /* ===== 자동완성 목록 ===== */
+    #autocompleteList {
+      border: 1px solid #ccc;
+      background: #fff;
+      display: none;
+      max-width: 260px;
+      z-index: 1000;
+      margin-top: 2px;
+    }
+    #autocompleteList div {
+      padding: 8px;
+      cursor: pointer;
+    }
+    #autocompleteList div:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* ===== 반응형 (모바일에서 .news-list를 1컬럼) ===== */
+    @media (max-width: 768px) {
+      .hero {
+        min-height: 180px;
+        padding: 30px 15px;
+      }
+      .news-list {
+        grid-template-columns: 1fr;
+      }
+      .news-thumbnail {
+        height: 200px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1><%= text.latest_news %></h1>
-  <ul>
-    <% articles.forEach(article => { %>
-      <li>
-        <a href="/news/<%= article.id %>?lang=<%= lang %>"><%= article.title %></a>
-         - <%= article.date %> [<%= article.category %>]
-      </li>
-    <% }) %>
-  </ul>
-  <hr>
-  <form method="GET" action="/search">
-    <input type="text" name="q" placeholder="<%= text.search %>">
-    <button type="submit"><%= text.search %></button>
-    <input type="hidden" name="lang" value="<%= lang %>">
-  </form>
-  <hr>
-  <a href="/admin/login?lang=<%= lang %>"><%= text.login %></a> |
-  <a href="?lang=ko">🇰🇷</a> | <a href="?lang=vi">🇻🇳</a>
-  <hr>
-  <form method="POST" action="/subscribe?lang=<%= lang %>">
-    <input type="email" name="email" placeholder="Email 구독" required>
-    <button type="submit">구독</button>
-  </form>
+  <!-- 상단 헤더 (partials/header.ejs) -->
+  <%- include('partials/header') %>
+
+  <!-- 히어로 배너 -->
+  <div class="hero">
+    <div class="hero-text">
+      <h1><%= text.latest_news %></h1>
+      <p>새로운 소식과 한국유학, 다문화, 인터뷰 등 다양한 기사를 만나보세요.</p>
+    </div>
+  </div>
+
+  <!-- 메인 컨테이너 (패널) -->
+  <div class="container">
+    <!-- 카테고리 탭 -->
+    <div class="category-tabs">
+      <a href="/?lang=<%= lang %>" class="<%= !category ? 'active' : '' %>">전체</a>
+      <a href="/?category=국제교육&lang=<%= lang %>" class="<%= category === '국제교육' ? 'active' : '' %>">국제교육</a>
+      <a href="/?category=한국유학&lang=<%= lang %>" class="<%= category === '한국유학' ? 'active' : '' %>">한국유학</a>
+      <a href="/?category=다문화&lang=<%= lang %>" class="<%= category === '다문화' ? 'active' : '' %>">다문화</a>
+      <a href="/?category=인터뷰&lang=<%= lang %>" class="<%= category === '인터뷰' ? 'active' : '' %>">인터뷰</a>
+    </div>
+
+    <!-- 인기글 섹션 (디자인 수정됨) -->
+    <% if (popularArticles && popularArticles.length) { %>
+      <div class="popular-articles">
+        <h2>인기글</h2>
+        <ul>
+          <% popularArticles.forEach(function(article) { %>
+            <li class="popular-item">
+              <span class="popular-title">
+                <a href="/news/<%= article.id %>?lang=<%= lang %>"><%= article.title %></a>
+              </span>
+              <span class="popular-stats">
+                ( <%= article.views %> 조회 / <%= article.commentCount %> 댓글 )
+              </span>
+              <span class="popular-summary">
+                <%= article.content.replace(/<[^>]*>/g, "").substring(0, 50) %>...
+              </span>
+              <span class="popular-date"><%= article.date %></span>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <!-- 뉴스 리스트 (그리드 2단) -->
+    <ul class="news-list">
+      <% articles.forEach(article => { %>
+        <li class="news-item">
+          <div class="news-thumbnail">
+            <% if (article.image) { %>
+              <img src="<%= article.image %>" alt="썸네일">
+            <% } else { %>
+              <img src="/images/no-image.png" alt="대체 썸네일">
+            <% } %>
+          </div>
+          <div class="news-info">
+            <div class="news-header">
+              <h2 class="news-title">
+                <a href="/news/<%= article.id %>?lang=<%= lang %>">
+                  <%= article.title %>
+                </a>
+              </h2>
+              <div class="news-meta">
+                <%= article.date %> | 조회수: <%= article.views %> | 댓글: <%= article.commentCount %>
+              </div>
+            </div>
+            <div class="news-summary">
+              <%= article.content.replace(/<[^>]*>/g, "").substring(0, 150) %>...
+            </div>
+          </div>
+        </li>
+      <% }); %>
+    </ul>
+
+    <!-- 페이지네비게이션 -->
+    <% if (totalPages > 1) { %>
+      <div class="pagination">
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <% if (i === currentPage) { %>
+            <span class="current"><%= i %></span>
+          <% } else { %>
+            <a href="/?lang=<%= lang %>&page=<%= i %><% if (category) { %>&category=<%= category %><% } %>">
+              <%= i %>
+            </a>
+          <% } %>
+        <% } %>
+      </div>
+    <% } %>
+
+    <!-- 검색 폼 섹션 -->
+    <div class="form-section">
+      <h3>뉴스 검색</h3>
+      <form
+        method="GET"
+        action="/search"
+        class="input-group"
+        id="searchForm"
+      >
+        <input
+          type="text"
+          name="q"
+          placeholder="<%= text.search %>"
+          id="searchInput"
+          autocomplete="off"
+        >
+        <button type="submit"><%= text.search %></button>
+        <input type="hidden" name="lang" value="<%= lang %>">
+        <div id="autocompleteList"></div>
+      </form>
+    </div>
+
+    <hr>
+
+    <!-- 이메일 구독 섹션 -->
+    <div class="form-section">
+      <h3>Email 구독</h3>
+      <form
+        method="POST"
+        action="/subscribe?lang=<%= lang %>"
+        class="input-group"
+      >
+        <input type="email" name="email" placeholder="Email 구독" required>
+        <button type="submit">구독</button>
+      </form>
+    </div>
+  </div> <!-- end .container -->
+
+  <!-- 자동완성 스크립트 -->
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const autocompleteList = document.getElementById('autocompleteList');
+    const searchForm = document.getElementById('searchForm');
+
+    // 검색창 입력 이벤트 (자동완성)
+    searchInput.addEventListener('keyup', function () {
+      const query = searchInput.value.trim();
+      if (query.length < 2) {
+        autocompleteList.style.display = 'none';
+        return;
+      }
+      fetch('/autocomplete?q=' + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(suggestions => {
+          autocompleteList.innerHTML = "";
+          if (suggestions.length > 0) {
+            suggestions.forEach(suggestion => {
+              const div = document.createElement('div');
+              div.textContent = suggestion;
+              div.addEventListener('click', function () {
+                searchInput.value = suggestion;
+                autocompleteList.style.display = 'none';
+              });
+              autocompleteList.appendChild(div);
+            });
+            autocompleteList.style.display = 'block';
+          } else {
+            autocompleteList.style.display = 'none';
+          }
+        })
+        .catch(error => {
+          console.error("자동완성 오류:", error);
+          autocompleteList.style.display = 'none';
+        });
+    });
+
+    // 검색 폼 외부 클릭 시 자동완성 목록 숨기기
+    document.addEventListener('click', function (e) {
+      if (!searchForm.contains(e.target)) {
+        autocompleteList.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
