@@ -1,4 +1,6 @@
 require('dotenv').config(); // .env 파일의 환경 변수를 불러옵니다.
+// 환경변수 PORT가 설정되어 있으면 그 포트를, 없으면 기본 3000 포트를 사용합니다.
+
 
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
@@ -11,6 +13,7 @@ const path = require("path");
 const fs = require("fs");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+
 
 // Passport 설정
 passport.serializeUser((user, done) => {
@@ -25,7 +28,9 @@ const natural = require("natural");
 const TfIdf = natural.TfIdf;
 
 const app = express();
-const db = new sqlite3.Database("./db.sqlite3");
+const dbPath = process.env.DB_PATH || "./db.sqlite3";
+const db = new sqlite3.Database(dbPath);
+
 
 // multer 설정 - diskStorage 사용
 const storage = multer.diskStorage({
@@ -677,6 +682,7 @@ app.get("/autocomplete", (req, res) => {
 });
 
 // 서버 실행
-app.listen(3000, () => {
-  console.log("✅ 서버 실행 중: http://localhost:3000");
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0', () => {
+  console.log(`✅ 서버 실행 중: http://0.0.0.0:${port}`);
 });
