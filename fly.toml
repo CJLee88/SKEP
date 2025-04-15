@@ -1,22 +1,27 @@
-# fly.toml app configuration file generated for skep-damp-star-3828 on 2025-04-14T18:30:05Z
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
-
-app = 'skep-damp-star-3828'
-primary_region = 'sin'
+app = "skep-damp-star-3828"
+primary_region = "sin"
 
 [build]
+  # 빌드 관련 추가 설정이 필요한 경우 여기에 작성
+
+[env]
+  PORT = "8080"
+  DB_PATH = "/data/db.sqlite3"
+  # 필요한 다른 환경변수도 이곳에 추가 가능합니다.
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = 'stop'
+  auto_stop_machines = "stop"
   auto_start_machines = true
   min_machines_running = 0
-  processes = ['app']
+  processes = ["app"]
+
+[[mounts]]
+  source = "data_volume"
+  destination = "/data"
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
+  memory = "1gb"
+  cpu_kind = "shared"
   cpus = 1
